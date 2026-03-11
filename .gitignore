@@ -1,0 +1,22 @@
+## [Visual Studio]
+.vs/
+
+## [Build và Output]
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## [Data - Tránh commit dữ liệu thực tế]
+QuanLyKho/Data/*.json
+
+## [OS và IDE khác]
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
