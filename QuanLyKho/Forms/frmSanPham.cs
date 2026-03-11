@@ -61,7 +61,7 @@ namespace QuanLyKho.Forms
             var btnPanel = new FlowLayoutPanel
             {
                 Dock = DockStyle.Bottom,
-                Height = 50,
+                Height = 90,
                 FlowDirection = FlowDirection.LeftToRight,
                 BackColor = Color.Transparent,
                 Padding = new Padding(0, 6, 0, 0)

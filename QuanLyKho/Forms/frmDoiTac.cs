@@ -44,7 +44,7 @@ namespace QuanLyKho.Forms
             _txtDienThoai = UIHelper.CreateInput("Số điện thoại");
             _txtDiaChi    = UIHelper.CreateInput("Địa chỉ");
 
-            var btnPanel = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 50, BackColor = Color.Transparent, Padding = new Padding(0, 6, 0, 0) };
+            var btnPanel = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 90, BackColor = Color.Transparent, Padding = new Padding(0, 6, 0, 0) };
             _btnThem    = UIHelper.CreateButton("+ Thêm",     AppTheme.AccentGreen);
             _btnCapNhat = UIHelper.CreateButton("✎ Cập nhật", AppTheme.Accent);
             _btnXoa     = UIHelper.CreateButton("✕ Xóa",      AppTheme.AccentRed);

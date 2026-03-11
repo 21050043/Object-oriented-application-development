@@ -53,7 +53,30 @@ namespace QuanLyKho.Services
             _dsPhieu.Add(phieu);
             Save();
 
-            // Đồng bộ tồn kho sản phẩm xuống file
+        // Đồng bộ tồn kho sản phẩm xuống file
+            _sanPhamService.Save();
+        }
+
+        /// <summary>
+        /// Xóa phiếu và ĐẢO NGƯỢC cập nhật tồn kho.
+        /// Phiếu Nhập bị xóa -> Trừ tồn kho | Phiếu Xuất bị xóa -> Cộng tồn kho.
+        /// </summary>
+        public void XoaPhieu(string maPhieu)
+        {
+            var phieu = _dsPhieu.FirstOrDefault(p => p.MaPhieu.Equals(maPhieu, StringComparison.OrdinalIgnoreCase));
+            if (phieu == null) throw new InvalidOperationException($"Không tìm thấy phiếu '{maPhieu}'.");
+
+            // Đảo ngược tồn kho
+            foreach (var ct in phieu.DanhSachChiTiet)
+            {
+                if (phieu is PhieuNhap)
+                    ct.SanPhamGiaoDich.GiamTonKho(ct.SoLuong);
+                else if (phieu is PhieuXuat)
+                    ct.SanPhamGiaoDich.TangTonKho(ct.SoLuong);
+            }
+
+            _dsPhieu.Remove(phieu);
+            Save();
             _sanPhamService.Save();
         }
 

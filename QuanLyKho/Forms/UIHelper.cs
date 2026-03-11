@@ -120,9 +120,9 @@ namespace QuanLyKho.Forms
                 FlatStyle = FlatStyle.Flat,
                 Font = AppTheme.FontBody,
                 Height = AppTheme.ButtonHeight,
-                Width = 110,
+                Width = 125,
                 Cursor = Cursors.Hand,
-                Margin = new Padding(0, 0, 6, 0)
+                Margin = new Padding(0, 0, 8, 8)
             };
             btn.FlatAppearance.BorderSize = 0;
             btn.FlatAppearance.MouseOverBackColor = ControlPaint.Light(backColor, 0.1f);

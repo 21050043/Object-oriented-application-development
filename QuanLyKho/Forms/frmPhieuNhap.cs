@@ -45,157 +45,107 @@ namespace QuanLyKho.Forms
             ForeColor = AppTheme.TextPrimary;
             Font = AppTheme.FontBody;
 
-            var lblTieuDe = UIHelper.CreateSectionHeader("📥  LẬP PHIẾU NHẬP KHO");
+            var lblTieuDe = UIHelper.CreateSectionHeader("📥 LẬP PHIẾU NHẬP KHO");
 
-            // ===== INFO HEADER CARD =====
-            var infoCard = UIHelper.CreateCard();
-            infoCard.Dock = DockStyle.Top;
-            infoCard.Height = 130;
-            infoCard.Padding = new Padding(16, 10, 16, 10);
-
-            var tblInfo = new TableLayoutPanel
+            var split = new SplitContainer
             {
                 Dock = DockStyle.Fill,
-                ColumnCount = 4,
-                RowCount = 2,
-                BackColor = Color.Transparent
-            };
-            tblInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25f));
-            tblInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25f));
-            tblInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25f));
-            tblInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25f));
-
-            string maPhieu = _phieuService.SinhMaPhieu(true);
-            _txtMaPhieu = UIHelper.CreateInput("");
-            _txtMaPhieu.Text = maPhieu;
-            _txtMaPhieu.ReadOnly = true;
-            _txtMaPhieu.BackColor = AppTheme.BgInput;
-
-            _dtpNgayLap = new DateTimePicker
-            {
-                Format = DateTimePickerFormat.Short,
-                Value = DateTime.Now,
-                Font = AppTheme.FontBody,
-                BackColor = AppTheme.BgInput,
-                ForeColor = AppTheme.TextPrimary,
-                Dock = DockStyle.Fill,
-                CalendarMonthBackground = AppTheme.BgCard,
-                CalendarForeColor = AppTheme.TextPrimary
+                Panel1MinSize = 380, // Ép buộc kích thước tối thiểu
+                FixedPanel = FixedPanel.Panel1,
+                IsSplitterFixed = true,
+                BorderStyle = BorderStyle.None
             };
 
-            _txtNguoiLap = UIHelper.CreateInput("Tên thủ kho");
+            // ===== CỘT TRÁI: THÔNG TIN & NHẬP LIỆU ===== (CHIÊM 380px)
+            var leftPanel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(16, 20, 10, 16), AutoScroll = true };
+            
+            var groupInfo = UIHelper.CreateCard();
+            groupInfo.Dock = DockStyle.Top; groupInfo.Height = 310; groupInfo.Padding = new Padding(15);
+
+            _txtMaPhieu = UIHelper.CreateInput(""); _txtMaPhieu.Text = _phieuService.SinhMaPhieu(true); _txtMaPhieu.ReadOnly = true;
+            _dtpNgayLap = new DateTimePicker { Format = DateTimePickerFormat.Short, Value = DateTime.Now, Font = AppTheme.FontSubtitle, Dock = DockStyle.Top, Height = 35 };
+            _txtNguoiLap = UIHelper.CreateInput("Họ tên người lập");
             _cboDoiTac = UIHelper.CreateComboBox();
-            foreach (var dt in _dtService.GetAll())
-                _cboDoiTac.Items.Add(dt);
+            foreach (var dt in _dtService.GetAll()) _cboDoiTac.Items.Add(dt);
             if (_cboDoiTac.Items.Count > 0) _cboDoiTac.SelectedIndex = 0;
 
-            tblInfo.Controls.Add(UIHelper.CreateLabel("Mã Phiếu"),   0, 0);
-            tblInfo.Controls.Add(UIHelper.CreateLabel("Ngày Lập"),   1, 0);
-            tblInfo.Controls.Add(UIHelper.CreateLabel("Người Lập"),  2, 0);
-            tblInfo.Controls.Add(UIHelper.CreateLabel("Nhà Cung Cấp"), 3, 0);
-            tblInfo.Controls.Add(_txtMaPhieu,   0, 1);
-            tblInfo.Controls.Add(_dtpNgayLap,   1, 1);
-            tblInfo.Controls.Add(_txtNguoiLap,  2, 1);
-            tblInfo.Controls.Add(_cboDoiTac,    3, 1);
-            infoCard.Controls.Add(tblInfo);
+            groupInfo.Controls.Add(_cboDoiTac); groupInfo.Controls.Add(UIHelper.CreateLabel("Nhà Cung Cấp *"));
+            groupInfo.Controls.Add(_txtNguoiLap); groupInfo.Controls.Add(UIHelper.CreateLabel("Người Lập Phiếu"));
+            groupInfo.Controls.Add(_dtpNgayLap); groupInfo.Controls.Add(UIHelper.CreateLabel("Ngày Chứng Từ"));
+            groupInfo.Controls.Add(_txtMaPhieu); groupInfo.Controls.Add(UIHelper.CreateLabel("Mã Phiếu (Auto)"));
+            groupInfo.Controls.Add(new Label { Text = "THÔNG TIN CHUNG", Font = AppTheme.FontLabel, ForeColor = AppTheme.Accent, Dock = DockStyle.Top, Height = 30 });
 
-            // ===== CHI TIẾT PHIẾU =====
-            var detailCard = UIHelper.CreateCard();
-            detailCard.Dock = DockStyle.Fill;
-            detailCard.Padding = new Padding(16, 10, 16, 10);
-
-            // Hàng nhập chi tiết
-            var inputRow = new TableLayoutPanel
-            {
-                Dock = DockStyle.Top, Height = 50,
-                ColumnCount = 5, RowCount = 1,
-                BackColor = Color.Transparent
-            };
-            inputRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40f));
-            inputRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 15f));
-            inputRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20f));
-            inputRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 15f));
-            inputRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 10f));
+            var groupItem = UIHelper.CreateCard();
+            groupItem.Dock = DockStyle.Top; groupItem.Height = 290; groupItem.Padding = new Padding(15); groupItem.Margin = new Padding(0, 20, 0, 0);
 
             _cboSanPham = UIHelper.CreateComboBox();
-            foreach (var sp in _spService.GetAll())
-                _cboSanPham.Items.Add(sp);
+            foreach (var sp in _spService.GetAll()) _cboSanPham.Items.Add(sp);
             if (_cboSanPham.Items.Count > 0) _cboSanPham.SelectedIndex = 0;
-            _cboSanPham.SelectedIndexChanged += (s, e) =>
-            {
-                if (_cboSanPham.SelectedItem is SanPham sp)
-                    _txtDonGia.Text = sp.DonGia.ToString("N0");
-            };
+            _cboSanPham.SelectedIndexChanged += (s, e) => { if (_cboSanPham.SelectedItem is SanPham sp) _txtDonGia.Text = sp.DonGia.ToString(); };
 
-            _nudSoLuong = new NumericUpDown
-            {
-                Minimum = 1, Maximum = 999999, Value = 1,
-                Font = AppTheme.FontBody, Dock = DockStyle.Fill,
-                BackColor = AppTheme.BgInput, ForeColor = AppTheme.TextPrimary,
-                BorderStyle = BorderStyle.FixedSingle
-            };
-            _txtDonGia = UIHelper.CreateInput("Đơn giá");
-
-            var btnThemDong = UIHelper.CreateButton("+ Thêm dòng", AppTheme.AccentGreen);
-            btnThemDong.Dock = DockStyle.Fill;
+            _nudSoLuong = new NumericUpDown { Minimum = 1, Maximum = 999999, Font = new Font("Segoe UI", 14f, FontStyle.Bold), Dock = DockStyle.Top, Height = 45, BackColor = AppTheme.BgInput, ForeColor = AppTheme.AccentGreen, TextAlign = HorizontalAlignment.Center };
+            _txtDonGia = UIHelper.CreateInput("Đơn giá nhập");
+            var btnThemDong = UIHelper.CreateButton("✚ THÊM VÀO PHIẾU", AppTheme.AccentGreen);
+            btnThemDong.Dock = DockStyle.Bottom; btnThemDong.Height = 50; btnThemDong.Font = AppTheme.FontSubtitle;
             btnThemDong.Click += BtnThemDong_Click;
 
-            var lblSP   = BuildVerticalLabel("Sản Phẩm");
-            var lblSL   = BuildVerticalLabel("Số Lượng");
-            var lblDG   = BuildVerticalLabel("Đơn Giá");
+            groupItem.Controls.Add(btnThemDong);
+            groupItem.Controls.Add(_txtDonGia); groupItem.Controls.Add(UIHelper.CreateLabel("Đơn Giá (đ)"));
+            groupItem.Controls.Add(_nudSoLuong); groupItem.Controls.Add(UIHelper.CreateLabel("Số Lượng Nhập"));
+            groupItem.Controls.Add(_cboSanPham); groupItem.Controls.Add(UIHelper.CreateLabel("Sản Phẩm *"));
+            groupItem.Controls.Add(new Label { Text = "CHI TIẾT MẶT HÀNG", Font = AppTheme.FontLabel, ForeColor = AppTheme.Accent, Dock = DockStyle.Top, Height = 30 });
 
-            inputRow.Controls.Add(_cboSanPham, 0, 0);
-            inputRow.Controls.Add(_nudSoLuong, 1, 0);
-            inputRow.Controls.Add(_txtDonGia,  2, 0);
-            inputRow.Controls.Add(btnThemDong, 3, 0);
+            leftPanel.Controls.Add(groupItem);
+            leftPanel.Controls.Add(UIHelper.CreateSpacer(10));
+            leftPanel.Controls.Add(groupInfo);
 
-            // DataGridView chi tiết phiếu
+            // ===== CỘT PHẢI: CHI TIẾT HÓA ĐƠN =====
+            var rightPanel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(10, 20, 20, 16) };
+            var invoiceCard = UIHelper.CreateCard();
+            invoiceCard.Dock = DockStyle.Fill;
+            invoiceCard.Padding = new Padding(1);
+
             _dgvChiTiet = UIHelper.CreateDataGridView();
-            _dgvChiTiet.Columns.Add("TenSP",   "Sản Phẩm");
-            _dgvChiTiet.Columns.Add("SoLuong", "Số Lượng");
-            _dgvChiTiet.Columns.Add("DonGia",  "Đơn Giá");
-            _dgvChiTiet.Columns.Add("ThanhTien","Thành Tiền");
+            _dgvChiTiet.Columns.Add("TenSP", "MẶT HÀNG");
+            _dgvChiTiet.Columns.Add("SoLuong", "SL");
+            _dgvChiTiet.Columns.Add("DonGia", "ĐƠN GIÁ");
+            _dgvChiTiet.Columns.Add("ThanhTien", "THÀNH TIỀN");
             _dgvChiTiet.Columns["TenSP"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            _dgvChiTiet.Columns["SoLuong"].Width = 60;
             _dgvChiTiet.Columns["ThanhTien"].DefaultCellStyle.Format = "N0";
-
-            // Delete row khi nhấn Delete
-            _dgvChiTiet.KeyDown += (s, e) =>
-            {
-                if (e.KeyCode == Keys.Delete && _dgvChiTiet.SelectedRows.Count > 0)
-                {
+            _dgvChiTiet.Columns["ThanhTien"].Width = 120;
+            
+            _dgvChiTiet.KeyDown += (s, e) => {
+                if (e.KeyCode == Keys.Delete && _dgvChiTiet.SelectedRows.Count > 0) {
                     int idx = _dgvChiTiet.SelectedRows[0].Index;
-                    _dsChiTiet.RemoveAt(idx);
-                    _dgvChiTiet.Rows.RemoveAt(idx);
-                    CapNhatTongTien();
+                    _dsChiTiet.RemoveAt(idx); _dgvChiTiet.Rows.RemoveAt(idx); CapNhatTongTien();
                 }
             };
 
-            // Footer
-            var footer = new Panel { Dock = DockStyle.Bottom, Height = 50, BackColor = Color.Transparent };
-            _lblTongTien = new Label
-            {
-                Text = "TỔNG TIỀN: 0 đ",
-                Font = AppTheme.FontSubtitle,
-                ForeColor = AppTheme.AccentGreen,
-                AutoSize = true
-            };
-            var btnLuu = UIHelper.CreateButton("💾  Lưu Phiếu Nhập", AppTheme.Accent);
-            btnLuu.Width = 180;
-            btnLuu.Dock = DockStyle.Right;
-            btnLuu.Click += BtnLuu_Click;
+            var bottomAction = new TableLayoutPanel { Dock = DockStyle.Bottom, Height = 110, RowCount = 1, ColumnCount = 2, BackColor = Color.FromArgb(22, 22, 38), Padding = new Padding(20, 10, 20, 10) };
+            bottomAction.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 60f));
+            bottomAction.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40f));
 
-            footer.Controls.Add(_lblTongTien);
-            footer.Controls.Add(btnLuu);
+            _lblTongTien = new Label { Text = "TỔNG: 0 đ", Font = new Font("Segoe UI", 22f, FontStyle.Bold), ForeColor = AppTheme.AccentGreen, Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft };
+            var btnSavePhieu = UIHelper.CreateButton("💾 LƯU PHIẾU", AppTheme.Accent);
+            btnSavePhieu.Dock = DockStyle.Fill; btnSavePhieu.Font = AppTheme.FontSubtitle;
+            btnSavePhieu.Click += BtnLuu_Click;
 
-            detailCard.Controls.Add(footer);
-            detailCard.Controls.Add(_dgvChiTiet);
-            detailCard.Controls.Add(UIHelper.CreateSpacer(6));
-            detailCard.Controls.Add(inputRow);
-            detailCard.Controls.Add(UIHelper.CreateLabel("Chi Tiết Hàng Hóa Nhập"));
+            bottomAction.Controls.Add(_lblTongTien, 0, 0);
+            bottomAction.Controls.Add(btnSavePhieu, 1, 0);
 
-            Controls.Add(detailCard);
-            Controls.Add(infoCard);
+            invoiceCard.Controls.Add(_dgvChiTiet);
+            invoiceCard.Controls.Add(new Label { Text = "DANH SÁCH CHI TIẾT PHIẾU NHẬP", Font = AppTheme.FontLabel, ForeColor = AppTheme.TextSecondary, Dock = DockStyle.Top, Height = 45, TextAlign = ContentAlignment.MiddleCenter });
+            invoiceCard.Controls.Add(bottomAction);
+
+            rightPanel.Controls.Add(invoiceCard);
+
+            split.Panel1.Controls.Add(leftPanel);
+            split.Panel2.Controls.Add(rightPanel);
+            Controls.Add(split);
             Controls.Add(lblTieuDe);
+
+            split.SplitterDistance = 380; // Ép buộc giá trị sau khi đã add vào Controls
         }
 
         private Label BuildVerticalLabel(string text)
