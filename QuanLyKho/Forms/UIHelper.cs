@@ -167,15 +167,24 @@ namespace QuanLyKho.Forms
                 BorderStyle = BorderStyle.None,
                 RowHeadersVisible = false,
                 AllowUserToAddRows = false,
-                ReadOnly = false,
+                ReadOnly = true, // Đảm bảo tính toàn vẹn dữ liệu hiển thị
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
                 MultiSelect = false,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None,
                 ColumnHeadersHeight = 34,
                 RowTemplate = { Height = 30 },
                 Font = AppTheme.FontBody,
-                CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal
+                CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal,
+                AllowUserToOrderColumns = false, // Khóa kéo thả cột để tránh lỗi layout
+                AllowUserToResizeColumns = false, // Chống 'nuốt' cột
+                AllowUserToResizeRows = false,    // Chống vỡ hàng
+                ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing
             };
+
+            // Kích hoạt Double Buffering qua Reflection để sửa lỗi ghosting/lag khi kéo cột
+            typeof(DataGridView).GetProperty("DoubleBuffered", 
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                ?.SetValue(dgv, true, null);
 
             // Header style
             dgv.ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle

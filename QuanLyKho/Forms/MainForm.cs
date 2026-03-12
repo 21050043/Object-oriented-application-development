@@ -114,7 +114,7 @@ namespace QuanLyKho.Forms
                 SetActiveButton(_btnHome); 
                 _lblTitle.Text = "Trang Chủ"; 
             };
-            _btnSanPham.Click += (s, e) => ShowForm(new frmSanPham(_sanPhamService), _btnSanPham);
+            _btnSanPham.Click += (s, e) => ShowForm(new frmSanPham(_sanPhamService, _doiTacService), _btnSanPham);
             _btnDoiTac.Click  += (s, e) => ShowForm(new frmDoiTac(_doiTacService), _btnDoiTac);
             _btnNhapKho.Click += (s, e) => ShowForm(new frmPhieuNhap(_sanPhamService, _doiTacService, _phieuKhoService), _btnNhapKho);
             _btnXuatKho.Click += (s, e) => ShowForm(new frmPhieuXuat(_sanPhamService, _doiTacService, _phieuKhoService), _btnXuatKho);

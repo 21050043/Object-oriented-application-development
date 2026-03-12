@@ -67,7 +67,8 @@ namespace QuanLyKho.Services
             string kw = keyword.Trim().ToLower();
             return _dsSanPham.Where(sp =>
                 sp.MaSP.ToLower().Contains(kw) ||
-                sp.TenSP.ToLower().Contains(kw)).ToList();
+                sp.TenSP.ToLower().Contains(kw) ||
+                sp.DanhMuc.ToLower().Contains(kw)).ToList();
         }
     }
 }

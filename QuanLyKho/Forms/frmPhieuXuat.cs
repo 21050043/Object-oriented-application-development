@@ -60,7 +60,7 @@ namespace QuanLyKho.Forms
             groupInfo.Dock = DockStyle.Top; groupInfo.Height = 310; groupInfo.Padding = new Padding(15);
 
             _txtMaPhieu = UIHelper.CreateInput(""); _txtMaPhieu.Text = _phieuService.SinhMaPhieu(false); _txtMaPhieu.ReadOnly = true;
-            _dtpNgayLap = new DateTimePicker { Format = DateTimePickerFormat.Short, Value = DateTime.Now, Font = AppTheme.FontSubtitle, Dock = DockStyle.Top, Height = 35 };
+            _dtpNgayLap = new DateTimePicker { Format = DateTimePickerFormat.Short, Value = DateTime.Now, Font = AppTheme.FontSubtitle, Dock = DockStyle.Top, Height = 35, Enabled = false };
             _txtNguoiLap = UIHelper.CreateInput("Họ tên người lập");
             _cboDoiTac = UIHelper.CreateComboBox();
             foreach (var dt in _dtService.GetAll()) _cboDoiTac.Items.Add(dt);

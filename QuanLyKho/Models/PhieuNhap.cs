@@ -43,6 +43,12 @@ namespace QuanLyKho.Models
             foreach (var chiTiet in DanhSachChiTiet)
             {
                 chiTiet.SanPhamGiaoDich.TangTonKho(chiTiet.SoLuong);
+                
+                // Cập nhật chủ sở hữu mới cho sản phẩm dựa trên nhà cung cấp của phiếu nhập
+                if (_doiTacCungCap != null && !string.IsNullOrEmpty(_doiTacCungCap.MaDT))
+                {
+                    chiTiet.SanPhamGiaoDich.MaDoiTacChuQuan = _doiTacCungCap.MaDT;
+                }
             }
         }
 

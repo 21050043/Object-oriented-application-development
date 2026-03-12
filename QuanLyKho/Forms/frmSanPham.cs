@@ -14,17 +14,20 @@ namespace QuanLyKho.Forms
     public class frmSanPham : Form
     {
         private readonly SanPhamService _service;
+        private readonly DoiTacService _dtService;
         private SanPham? _editingSP = null;
 
         // Controls
-        private TextBox _txtMaSP, _txtTenSP, _txtDonViTinh, _txtDonGia, _txtTimKiem;
+        private TextBox _txtMaSP, _txtTenSP, _txtDonViTinh, _txtDonGia, _txtTimKiem, _txtDanhMuc;
+        private ComboBox _cboChuSoHuu;
         private DataGridView _dgv;
         private Button _btnThem, _btnCapNhat, _btnXoa, _btnLamMoi;
         private Label _lblTieuDe;
 
-        public frmSanPham(SanPhamService service)
+        public frmSanPham(SanPhamService service, DoiTacService dtService)
         {
             _service = service;
+            _dtService = dtService;
             Text = "🗂️  Quản Lý Sản Phẩm";
             BuildUI();
             LoadData();
@@ -49,13 +52,21 @@ namespace QuanLyKho.Forms
 
             _txtMaSP     = UIHelper.CreateInput("Mã sản phẩm (VD: SP001)");
             _txtTenSP    = UIHelper.CreateInput("Tên sản phẩm");
+            _txtDanhMuc  = UIHelper.CreateInput("Danh mục (Máy tính, Linh kiện...)");
             _txtDonViTinh= UIHelper.CreateInput("Đơn vị tính (VD: Cái, Hộp)");
             _txtDonGia   = UIHelper.CreateInput("Đơn giá (VD: 150000)");
+            
+            _cboChuSoHuu = UIHelper.CreateComboBox();
+            _cboChuSoHuu.Items.Add(new DoiTac("SYSTEM", "-", "", ""));
+            foreach (var dt in _dtService.GetAll()) _cboChuSoHuu.Items.Add(dt);
+            _cboChuSoHuu.SelectedIndex = 0;
 
             var lblMa  = UIHelper.CreateLabel("Mã Sản Phẩm *");
             var lblTen = UIHelper.CreateLabel("Tên Sản Phẩm *");
+            var lblDm  = UIHelper.CreateLabel("Danh Mục");
             var lblDvt = UIHelper.CreateLabel("Đơn Vị Tính");
             var lblGia = UIHelper.CreateLabel("Đơn Giá (đ)");
+            var lblOwner = UIHelper.CreateLabel("Chủ Sở Hữu (Đối tác)");
 
             // Buttons
             var btnPanel = new FlowLayoutPanel
@@ -82,10 +93,14 @@ namespace QuanLyKho.Forms
 
             // Thêm controls vào card (bottom-up vì Dock.Top)
             formCard.Controls.Add(btnPanel);
+            formCard.Controls.Add(_cboChuSoHuu);
+            formCard.Controls.Add(lblOwner);
             formCard.Controls.Add(_txtDonGia);
             formCard.Controls.Add(lblGia);
             formCard.Controls.Add(_txtDonViTinh);
             formCard.Controls.Add(lblDvt);
+            formCard.Controls.Add(_txtDanhMuc);
+            formCard.Controls.Add(lblDm);
             formCard.Controls.Add(_txtTenSP);
             formCard.Controls.Add(lblTen);
             formCard.Controls.Add(_txtMaSP);
@@ -110,13 +125,18 @@ namespace QuanLyKho.Forms
 
             // DataGridView
             _dgv = UIHelper.CreateDataGridView();
-            _dgv.Columns.Add("MaSP",     "Mã SP");
-            _dgv.Columns.Add("TenSP",    "Tên Sản Phẩm");
-            _dgv.Columns.Add("DonViTinh","Đơn vị tính");
-            _dgv.Columns.Add("DonGia",   "Đơn giá (đ)");
-            _dgv.Columns.Add("SoLuongTon","Tồn kho");
-            _dgv.Columns["MaSP"].Width = 90;
+            _dgv.Columns.Add("MaSP",      "Mã SP");
+            _dgv.Columns.Add("TenSP",     "Tên Sản Phẩm");
+            _dgv.Columns.Add("DanhMuc",   "Danh Mục");
+            _dgv.Columns.Add("DonViTinh", "Đơn vị");
+            _dgv.Columns.Add("DonGia",    "Đơn giá");
+            _dgv.Columns.Add("SoLuongTon","Tồn");
+            _dgv.Columns.Add("ChuSoHuu",  "Chủ Sở Hữu");
+
+            _dgv.Columns["MaSP"].Width = 80;
             _dgv.Columns["TenSP"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            _dgv.Columns["DonViTinh"].Width = 70;
+            _dgv.Columns["SoLuongTon"].Width = 60;
             _dgv.Columns["DonGia"].DefaultCellStyle.Format = "N0";
             _dgv.SelectionChanged += Dgv_SelectionChanged;
 
@@ -138,7 +158,14 @@ namespace QuanLyKho.Forms
 
             foreach (var sp in list)
             {
-                int row = _dgv.Rows.Add(sp.MaSP, sp.TenSP, sp.DonViTinh, sp.DonGia, sp.SoLuongTon);
+                string ownerName = "-";
+                if (!string.IsNullOrEmpty(sp.MaDoiTacChuQuan))
+                {
+                    var owner = _dtService.GetById(sp.MaDoiTacChuQuan);
+                    if (owner != null) ownerName = owner.TenDT;
+                }
+
+                int row = _dgv.Rows.Add(sp.MaSP, sp.TenSP, sp.DanhMuc, sp.DonViTinh, sp.DonGia, sp.SoLuongTon, ownerName);
                 // Tô màu dòng tồn thấp
                 if (sp.SoLuongTon == 0)
                     _dgv.Rows[row].DefaultCellStyle.BackColor = Color.FromArgb(60, AppTheme.AccentRed);
@@ -153,8 +180,13 @@ namespace QuanLyKho.Forms
             {
                 string maSP = UIHelper.GetTextValue(_txtMaSP);
                 string tenSP = UIHelper.GetTextValue(_txtTenSP);
+                string danhMuc = UIHelper.GetTextValue(_txtDanhMuc);
                 string dvt = UIHelper.GetTextValue(_txtDonViTinh);
                 string donGiaStr = UIHelper.GetTextValue(_txtDonGia).Replace(",", "").Replace(".", "");
+
+                string maDoiTac = "";
+                if (_cboChuSoHuu.SelectedItem is DoiTac dt && dt.MaDT != "SYSTEM")
+                    maDoiTac = dt.MaDT;
 
                 if (string.IsNullOrEmpty(maSP) || string.IsNullOrEmpty(tenSP))
                 {
@@ -168,7 +200,7 @@ namespace QuanLyKho.Forms
                     return;
                 }
 
-                var sp = new SanPham(maSP, tenSP, dvt, donGia);
+                var sp = new SanPham(maSP, tenSP, dvt, donGia, danhMuc, maDoiTac);
                 _service.Add(sp);
                 LoadData();
                 ResetForm();
@@ -183,8 +215,13 @@ namespace QuanLyKho.Forms
             try
             {
                 string tenSP = UIHelper.GetTextValue(_txtTenSP);
+                string danhMuc = UIHelper.GetTextValue(_txtDanhMuc);
                 string dvt = UIHelper.GetTextValue(_txtDonViTinh);
                 string donGiaStr = UIHelper.GetTextValue(_txtDonGia).Replace(",", "").Replace(".", "");
+
+                string maDoiTac = "";
+                if (_cboChuSoHuu.SelectedItem is DoiTac dt && dt.MaDT != "SYSTEM")
+                    maDoiTac = dt.MaDT;
 
                 if (string.IsNullOrEmpty(tenSP))
                 {
@@ -199,8 +236,10 @@ namespace QuanLyKho.Forms
                 }
 
                 _editingSP.TenSP = tenSP;
+                _editingSP.DanhMuc = danhMuc;
                 _editingSP.DonViTinh = dvt;
                 _editingSP.DonGia = donGia;
+                _editingSP.MaDoiTacChuQuan = maDoiTac;
                 _service.Update(_editingSP);
                 LoadData();
                 ResetForm();
@@ -231,8 +270,23 @@ namespace QuanLyKho.Forms
             _txtMaSP.Text = _editingSP.MaSP;
             _txtMaSP.ReadOnly = true;
             _txtTenSP.Text = _editingSP.TenSP;
+            _txtDanhMuc.Text = _editingSP.DanhMuc;
             _txtDonViTinh.Text = _editingSP.DonViTinh;
             _txtDonGia.Text = _editingSP.DonGia.ToString();
+
+            // Chọn chủ sở hữu trong ComboBox
+            _cboChuSoHuu.SelectedIndex = 0; // Mặc định hệ thống
+            if (!string.IsNullOrEmpty(_editingSP.MaDoiTacChuQuan))
+            {
+                for (int i = 0; i < _cboChuSoHuu.Items.Count; i++)
+                {
+                    if (_cboChuSoHuu.Items[i] is DoiTac dt && dt.MaDT == _editingSP.MaDoiTacChuQuan)
+                    {
+                        _cboChuSoHuu.SelectedIndex = i;
+                        break;
+                    }
+                }
+            }
 
             _btnThem.Enabled = false;
             _btnCapNhat.Enabled = true;
@@ -244,8 +298,10 @@ namespace QuanLyKho.Forms
             _editingSP = null;
             UIHelper.ResetInput(_txtMaSP);
             UIHelper.ResetInput(_txtTenSP);
+            UIHelper.ResetInput(_txtDanhMuc);
             UIHelper.ResetInput(_txtDonViTinh);
             UIHelper.ResetInput(_txtDonGia);
+            if (_cboChuSoHuu.Items.Count > 0) _cboChuSoHuu.SelectedIndex = 0;
             
             _txtMaSP.ReadOnly = false;
             _btnThem.Enabled = true;

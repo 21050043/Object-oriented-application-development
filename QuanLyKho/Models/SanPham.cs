@@ -16,6 +16,8 @@ namespace QuanLyKho.Models
         private string _donViTinh;
         private double _donGia;
         private int _soLuongTon;
+        private string _danhMuc;
+        private string _maDoiTacChuQuan;
 
         // ===== PROPERTIES với Validation =====
         public string MaSP
@@ -68,6 +70,18 @@ namespace QuanLyKho.Models
             }
         }
 
+        public string DanhMuc
+        {
+            get => _danhMuc;
+            set => _danhMuc = string.IsNullOrWhiteSpace(value) ? "Chưa phân loại" : value.Trim();
+        }
+
+        public string MaDoiTacChuQuan
+        {
+            get => _maDoiTacChuQuan;
+            set => _maDoiTacChuQuan = value?.Trim() ?? string.Empty;
+        }
+
         // ===== CONSTRUCTORS =====
 
         /// <summary>Constructor mặc định (bắt buộc cho JSON deserialization)</summary>
@@ -79,15 +93,19 @@ namespace QuanLyKho.Models
             _donViTinh = "Cái";
             _donGia = 0;
             _soLuongTon = 0;
+            _danhMuc = "Chưa phân loại";
+            _maDoiTacChuQuan = string.Empty;
         }
 
         /// <summary>Constructor đầy đủ tham số</summary>
-        public SanPham(string maSP, string tenSP, string donViTinh, double donGia)
+        public SanPham(string maSP, string tenSP, string donViTinh, double donGia, string danhMuc = "Chưa phân loại", string maDoiTac = "")
         {
             MaSP = maSP;
             TenSP = tenSP;
             DonViTinh = donViTinh;
             DonGia = donGia;
+            DanhMuc = danhMuc;
+            MaDoiTacChuQuan = maDoiTac;
             _soLuongTon = 0;
         }
 
