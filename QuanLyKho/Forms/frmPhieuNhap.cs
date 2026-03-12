@@ -81,7 +81,10 @@ namespace QuanLyKho.Forms
             _cboSanPham = UIHelper.CreateComboBox();
             foreach (var sp in _spService.GetAll()) _cboSanPham.Items.Add(sp);
             if (_cboSanPham.Items.Count > 0) _cboSanPham.SelectedIndex = 0;
-            _cboSanPham.SelectedIndexChanged += (s, e) => { if (_cboSanPham.SelectedItem is SanPham sp) _txtDonGia.Text = sp.DonGia.ToString(); };
+            _cboSanPham.SelectedIndexChanged += (s, e) => { 
+                if (_cboSanPham.SelectedItem is SanPham sp) 
+                    _txtDonGia.Text = sp.DonGia.ToString("N0"); 
+            };
 
             _nudSoLuong = new NumericUpDown { Minimum = 1, Maximum = 999999, Font = new Font("Segoe UI", 14f, FontStyle.Bold), Dock = DockStyle.Top, Height = 45, BackColor = AppTheme.BgInput, ForeColor = AppTheme.AccentGreen, TextAlign = HorizontalAlignment.Center };
             _txtDonGia = UIHelper.CreateInput("Đơn giá nhập");

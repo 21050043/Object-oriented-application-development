@@ -144,13 +144,14 @@ namespace QuanLyKho.Forms
         {
             return new ComboBox
             {
-                Dock = DockStyle.Fill,
+                Dock = DockStyle.Top,
+                Height = 32,
                 BackColor = AppTheme.BgInput,
                 ForeColor = AppTheme.TextPrimary,
                 Font = AppTheme.FontBody,
                 FlatStyle = FlatStyle.Flat,
                 DropDownStyle = ComboBoxStyle.DropDownList,
-                Margin = new Padding(0, 0, 0, 0)
+                Margin = new Padding(0, 0, 0, 6)
             };
         }
 
